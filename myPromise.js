@@ -1,3 +1,23 @@
+let Fromise9 = function Fromise9(callback) {
+  let _resolve = function (value) {
+    console.log(value);
+  }
+
+  let _reject = function (value) {
+    console.error(value);
+  };
+
+  let _success;
+  let _error;
+
+  this.then = function(success, error) {
+    _success = success;
+    _error = error;
+  }
+  
+  callback(_resolve, _reject);
+};
+
 // 예제 출력
 console.log("Promise:", 1);
 let promise = new Promise((resolve, reject) => {
