@@ -27,7 +27,8 @@ console.log("Promise:", 1);
 let promise = new Promise((resolve, reject) => {
   console.log("Promise:", 2);
   //throw new Error('에러야');
-  resolve(3);
+  // resolve(3);
+  reject(3);
   console.log("Promise:", 4);
 });
 console.log("Promise:", 5);
@@ -43,7 +44,8 @@ console.log("Fromise9:", 1);
 let fromise9 = new Fromise9((resolve, reject) => {
   console.log("Fromise9:", 2);
   // throw new Error("에러야");
-  resolve(3);
+  // resolve(3);
+  reject(3);
   console.log("Fromise9:", 4);
 });
 console.log("Fromise9:", 5);
