@@ -17,9 +17,21 @@ let Fromise9 = function Fromise9(callback) {
   this.then = function(success, error) {
     _success = success;
     _error = error;
+
+    return this;
+  }
+
+  this.catch = function(error) {
+    _error = error;
+
+    return this;
   }
   
-  callback(_resolve, _reject);
+  try {
+    callback(_resolve, _reject);
+  } catch (e) {
+    _reject(e);
+  }
 };
 
 // 예제 출력
@@ -45,8 +57,8 @@ console.log("Fromise9:", 1);
 let fromise9 = new Fromise9((resolve, reject) => {
   console.log("Fromise9:", 2);
   // throw new Error("에러야");
-  resolve(3);
-  // reject(3);
+  // resolve(3);
+  reject(3);
   console.log("Fromise9:", 4);
 });
 console.log("Fromise9:", 5);
