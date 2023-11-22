@@ -1,10 +1,14 @@
 let Fromise9 = function Fromise9(callback) {
   let _resolve = function (value) {
-    console.log(value);
+    queueMicrotask(() => {
+      _success(value);
+    })
   }
 
   let _reject = function (value) {
-    console.error(value);
+    queueMicrotask(() => {
+      _error(value);
+    })
   };
 
   let _success;
