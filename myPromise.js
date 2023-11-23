@@ -1,24 +1,31 @@
 let Fromise9 = function Fromise9(callback) {
+  let _success;
+  let _error;
+  let _nextResolve;
+  let _nextReject;
+
   let _resolve = function (value) {
     queueMicrotask(() => {
-      _success(value);
+      let result = _success && _success(value);
+      _nextResolve && _nextResolve(result);
     })
   }
 
   let _reject = function (value) {
     queueMicrotask(() => {
-      _error(value);
+      let result = _error && _error(value);
+      _nextReject && _nextReject(result);
     })
   };
-
-  let _success;
-  let _error;
 
   this.then = function(success, error) {
     _success = success;
     _error = error;
 
-    return this;
+    return new Fromise9((resolve, reject) => {
+      _nextResolve = resolve;
+      _nextReject = reject;
+    });
   }
 
   this.catch = function(error) {
