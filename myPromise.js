@@ -1,4 +1,4 @@
-let Fromise9 = function Fromise9(callback) {
+let Fromis9 = function Fromis9(callback) {
   let _success;
   let _error;
   let _nextResolve;
@@ -8,7 +8,7 @@ let Fromise9 = function Fromise9(callback) {
     queueMicrotask(() => {
       let result = _success && _success(value);
 
-      if (result instanceof Fromise9) {
+      if (result instanceof Fromis9) {
         result.then(value => {
           _nextResolve && _nextResolve(value);
         });
@@ -29,7 +29,7 @@ let Fromise9 = function Fromise9(callback) {
     _success = success;
     _error = error;
 
-    return new Fromise9((resolve, reject) => {
+    return new Fromis9((resolve, reject) => {
       _nextResolve = resolve;
       _nextReject = reject;
     });
@@ -50,77 +50,73 @@ let Fromise9 = function Fromise9(callback) {
 
 /* -------------------------------------------- */
 
-let getBuyCount = function (resolve) {
-  setTimeout(() => {
-    resolve(3);
-  }, 1000);
+let getBuyCount = function () {
+  console.log('Promise:', 2);
+  
+  let promise = new Promise((resolve, reject) => {
+    console.log('Promise:', 3);
+    setTimeout(() => {
+      resolve(4);
+    }, 1000);
+    console.log('Promise:', 5);
+  })
+  console.log('Promise:', 6);
+  return promise;
 };
 
-let getPoint = function (buyCount, resolve) {
-  setTimeout(() => {
-    resolve(buyCount * 3000);
-  }, 1000);
+let getPoint = function (buyCount) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(buyCount * 3000);
+    }, 1000);
+  });
 };
 
 /* -------------------------------------------- */
 
-let getBuyCountFromise9 = function (resolve) {
-  setTimeout(() => {
-    resolve(3);
-  }, 1000);
+let getBuyCountFromis9 = function () {
+  console.log("Fromis9:", 2);
+
+  let fromis9 = new Fromis9((resolve, reject) => {
+    console.log("Fromis9:", 3);
+    setTimeout(() => {
+      resolve(4);
+    }, 1000);
+    console.log("Fromis9:", 5);
+  });
+  console.log("Fromis9:", 6);
+  return fromis9;
 };
 
-let getPointFromise9 = function (buyCount, resolve) {
-  setTimeout(() => {
-    resolve(buyCount * 3000);
-  }, 1000);
+let getPointFromis9 = function (buyCount) {
+  return new Fromis9((resolve, reject) => {
+    setTimeout(() => {
+      resolve(buyCount * 3000);
+    }, 1000);
+  });
 };
 
 /* -------------------------------------------- */
 
 // 예제 출력
 console.log("Promise:", 1);
-let promise = new Promise((resolve, reject) => {
-  console.log("Promise:", 2);
-  //throw new Error('에러야');
-  // resolve(3);
-  // reject(3);
-  getBuyCount(resolve);
-  console.log("Promise:", 4);
-});
-console.log("Promise:", 5);
-promise.then((value) => {
-  console.log("Promise:", "then1", value);
-  return new Promise((resolve, reject) => {
-    getPoint(value, resolve);
+getBuyCount()
+  .then(getPoint)
+  .then((value) => {
+    console.log("Promise:", "then2", value);
+  }).catch(error => {
+    console.error("Promise:", "error", error);
   });
-}).then((value) => {
-  console.log("Promise:", "then2", value);
-}).catch(error => {
-  console.error("Promise:", "error", error);
-});
-console.log("Promise:", 6);
+console.log("Promise:", 7);
 
 
-// 직접 만든 Fromise9 출력
-console.log("Fromise9:", 1);
-let fromise9 = new Fromise9((resolve, reject) => {
-  console.log("Fromise9:", 2);
-  // throw new Error("에러야");
-  // resolve(3);
-  // reject(3);
-  getBuyCountFromise9(resolve);
-  console.log("Fromise9:", 4);
-});
-console.log("Fromise9:", 5);
-fromise9.then((value) => {
-  console.log("Fromise9:", "then1", value);
-  return new Fromise9((resolve, reject) => {
-    getPointFromise9(value, resolve);
+// 직접 만든 Fromis9 출력
+console.log("Fromis9:", 1);
+getBuyCountFromis9()
+  .then(getPointFromis9)
+  .then((value) => {
+    console.log("Fromis9:", "then2", value);
+  }).catch(error => {
+    console.error("Fromis9", "error", error);
   });
-}).then((value) => {
-  console.log("Fromise9:", "then2", value);
-}).catch(error => {
-  console.error("Fromise9", "error", error);
-});
-console.log("Fromise9:", 6);
+console.log("Fromis9:", 7);
