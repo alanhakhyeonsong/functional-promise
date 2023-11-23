@@ -1,4 +1,4 @@
-let Fromise9 = function Fromise9(callback) {
+let Fromis9 = function Fromis9(callback) {
   let _success;
   let _error;
   let _nextResolve;
@@ -8,7 +8,7 @@ let Fromise9 = function Fromise9(callback) {
     queueMicrotask(() => {
       let result = _success && _success(value);
 
-      if (result instanceof Fromise9) {
+      if (result instanceof Fromis9) {
         result.then(value => {
           _nextResolve && _nextResolve(value);
         });
@@ -29,7 +29,7 @@ let Fromise9 = function Fromise9(callback) {
     _success = success;
     _error = error;
 
-    return new Fromise9((resolve, reject) => {
+    return new Fromis9((resolve, reject) => {
       _nextResolve = resolve;
       _nextReject = reject;
     });
@@ -64,13 +64,13 @@ let getPoint = function (buyCount, resolve) {
 
 /* -------------------------------------------- */
 
-let getBuyCountFromise9 = function (resolve) {
+let getBuyCountFromis9 = function (resolve) {
   setTimeout(() => {
     resolve(3);
   }, 1000);
 };
 
-let getPointFromise9 = function (buyCount, resolve) {
+let getPointFromis9 = function (buyCount, resolve) {
   setTimeout(() => {
     resolve(buyCount * 3000);
   }, 1000);
@@ -102,25 +102,25 @@ promise.then((value) => {
 console.log("Promise:", 6);
 
 
-// 직접 만든 Fromise9 출력
-console.log("Fromise9:", 1);
-let fromise9 = new Fromise9((resolve, reject) => {
-  console.log("Fromise9:", 2);
+// 직접 만든 Fromis9 출력
+console.log("Fromis9:", 1);
+let fromis9 = new Fromis9((resolve, reject) => {
+  console.log("Fromis9:", 2);
   // throw new Error("에러야");
   // resolve(3);
   // reject(3);
-  getBuyCountFromise9(resolve);
-  console.log("Fromise9:", 4);
+  getBuyCountFromis9(resolve);
+  console.log("Fromis9:", 4);
 });
-console.log("Fromise9:", 5);
-fromise9.then((value) => {
-  console.log("Fromise9:", "then1", value);
-  return new Fromise9((resolve, reject) => {
-    getPointFromise9(value, resolve);
+console.log("Fromis9:", 5);
+fromis9.then((value) => {
+  console.log("Fromis9:", "then1", value);
+  return new Fromis9((resolve, reject) => {
+    getPointFromis9(value, resolve);
   });
 }).then((value) => {
-  console.log("Fromise9:", "then2", value);
+  console.log("Fromis9:", "then2", value);
 }).catch(error => {
-  console.error("Fromise9", "error", error);
+  console.error("Fromis9", "error", error);
 });
-console.log("Fromise9:", 6);
+console.log("Fromis9:", 6);
