@@ -41,18 +41,34 @@ let Fromise9 = function Fromise9(callback) {
   }
 };
 
+let getBuyCount = function (resolve) {
+  setTimeout(() => {
+    resolve(3);
+  }, 1000);
+};
+
+let getPoint = function (buyCount, resolve) {
+  setTimeout(() => {
+    resolve(buyCount * 3000);
+  }, 1000);
+};
+
 // 예제 출력
 console.log("Promise:", 1);
 let promise = new Promise((resolve, reject) => {
   console.log("Promise:", 2);
   //throw new Error('에러야');
-  resolve(3);
+  // resolve(3);
   // reject(3);
+  getBuyCount(resolve);
   console.log("Promise:", 4);
 });
 console.log("Promise:", 5);
 promise.then((value) => {
   console.log("Promise:", "then1", value);
+  return new Promise((resolve, reject) => {
+    getPoint(value, resolve);
+  });
 }).then((value) => {
   console.log("Promise:", "then2", value);
 }).catch(error => {
