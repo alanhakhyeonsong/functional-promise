@@ -51,15 +51,25 @@ let Fromis9 = function Fromis9(callback) {
 /* -------------------------------------------- */
 
 let getBuyCount = function (resolve) {
-  setTimeout(() => {
-    resolve(3);
-  }, 1000);
+  console.log('Promise:', 2);
+  
+  let promise = new Promise((resolve, reject) => {
+    console.log('Promise:', 3);
+    setTimeout(() => {
+      resolve(4);
+    }, 1000);
+    console.log('Promise:', 5);
+  })
+  console.log('Promise:', 6);
+  return promise;
 };
 
-let getPoint = function (buyCount, resolve) {
-  setTimeout(() => {
-    resolve(buyCount * 3000);
-  }, 1000);
+let getPoint = function (buyCount) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(buyCount * 3000);
+    }, 1000);
+  });
 };
 
 /* -------------------------------------------- */
@@ -80,26 +90,14 @@ let getPointFromis9 = function (buyCount, resolve) {
 
 // 예제 출력
 console.log("Promise:", 1);
-let promise = new Promise((resolve, reject) => {
-  console.log("Promise:", 2);
-  //throw new Error('에러야');
-  // resolve(3);
-  // reject(3);
-  getBuyCount(resolve);
-  console.log("Promise:", 4);
-});
-console.log("Promise:", 5);
-promise.then((value) => {
-  console.log("Promise:", "then1", value);
-  return new Promise((resolve, reject) => {
-    getPoint(value, resolve);
+getBuyCount()
+  .then(getPoint)
+  .then((value) => {
+    console.log("Promise:", "then2", value);
+  }).catch(error => {
+    console.error("Promise:", "error", error);
   });
-}).then((value) => {
-  console.log("Promise:", "then2", value);
-}).catch(error => {
-  console.error("Promise:", "error", error);
-});
-console.log("Promise:", 6);
+console.log("Promise:", 7);
 
 
 // 직접 만든 Fromis9 출력
