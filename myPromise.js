@@ -50,7 +50,7 @@ let Fromis9 = function Fromis9(callback) {
 
 /* -------------------------------------------- */
 
-let getBuyCount = function (resolve) {
+let getBuyCount = function () {
   console.log('Promise:', 2);
   
   let promise = new Promise((resolve, reject) => {
@@ -74,16 +74,26 @@ let getPoint = function (buyCount) {
 
 /* -------------------------------------------- */
 
-let getBuyCountFromis9 = function (resolve) {
-  setTimeout(() => {
-    resolve(3);
-  }, 1000);
+let getBuyCountFromis9 = function () {
+  console.log("Fromis9:", 2);
+
+  let fromis9 = new Fromis9((resolve, reject) => {
+    console.log("Fromis9:", 3);
+    setTimeout(() => {
+      resolve(4);
+    }, 1000);
+    console.log("Fromis9:", 5);
+  });
+  console.log("Fromis9:", 6);
+  return fromis9;
 };
 
-let getPointFromis9 = function (buyCount, resolve) {
-  setTimeout(() => {
-    resolve(buyCount * 3000);
-  }, 1000);
+let getPointFromis9 = function (buyCount) {
+  return new Fromis9((resolve, reject) => {
+    setTimeout(() => {
+      resolve(buyCount * 3000);
+    }, 1000);
+  });
 };
 
 /* -------------------------------------------- */
@@ -102,23 +112,11 @@ console.log("Promise:", 7);
 
 // 직접 만든 Fromis9 출력
 console.log("Fromis9:", 1);
-let fromis9 = new Fromis9((resolve, reject) => {
-  console.log("Fromis9:", 2);
-  // throw new Error("에러야");
-  // resolve(3);
-  // reject(3);
-  getBuyCountFromis9(resolve);
-  console.log("Fromis9:", 4);
-});
-console.log("Fromis9:", 5);
-fromis9.then((value) => {
-  console.log("Fromis9:", "then1", value);
-  return new Fromis9((resolve, reject) => {
-    getPointFromis9(value, resolve);
+getBuyCountFromis9()
+  .then(getPointFromis9)
+  .then((value) => {
+    console.log("Fromis9:", "then2", value);
+  }).catch(error => {
+    console.error("Fromis9", "error", error);
   });
-}).then((value) => {
-  console.log("Fromis9:", "then2", value);
-}).catch(error => {
-  console.error("Fromis9", "error", error);
-});
-console.log("Fromis9:", 6);
+console.log("Fromis9:", 7);
