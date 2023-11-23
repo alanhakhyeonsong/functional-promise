@@ -7,7 +7,14 @@ let Fromise9 = function Fromise9(callback) {
   let _resolve = function (value) {
     queueMicrotask(() => {
       let result = _success && _success(value);
-      _nextResolve && _nextResolve(result);
+
+      if (result instanceof Fromise9) {
+        result.then(value => {
+          _nextResolve && _nextResolve(value);
+        });
+      } else {
+        _nextResolve && _nextResolve(result);
+      }
     })
   }
 
@@ -41,18 +48,52 @@ let Fromise9 = function Fromise9(callback) {
   }
 };
 
+/* -------------------------------------------- */
+
+let getBuyCount = function (resolve) {
+  setTimeout(() => {
+    resolve(3);
+  }, 1000);
+};
+
+let getPoint = function (buyCount, resolve) {
+  setTimeout(() => {
+    resolve(buyCount * 3000);
+  }, 1000);
+};
+
+/* -------------------------------------------- */
+
+let getBuyCountFromise9 = function (resolve) {
+  setTimeout(() => {
+    resolve(3);
+  }, 1000);
+};
+
+let getPointFromise9 = function (buyCount, resolve) {
+  setTimeout(() => {
+    resolve(buyCount * 3000);
+  }, 1000);
+};
+
+/* -------------------------------------------- */
+
 // 예제 출력
 console.log("Promise:", 1);
 let promise = new Promise((resolve, reject) => {
   console.log("Promise:", 2);
   //throw new Error('에러야');
-  resolve(3);
+  // resolve(3);
   // reject(3);
+  getBuyCount(resolve);
   console.log("Promise:", 4);
 });
 console.log("Promise:", 5);
 promise.then((value) => {
   console.log("Promise:", "then1", value);
+  return new Promise((resolve, reject) => {
+    getPoint(value, resolve);
+  });
 }).then((value) => {
   console.log("Promise:", "then2", value);
 }).catch(error => {
@@ -66,13 +107,17 @@ console.log("Fromise9:", 1);
 let fromise9 = new Fromise9((resolve, reject) => {
   console.log("Fromise9:", 2);
   // throw new Error("에러야");
-  resolve(3);
+  // resolve(3);
   // reject(3);
+  getBuyCountFromise9(resolve);
   console.log("Fromise9:", 4);
 });
 console.log("Fromise9:", 5);
 fromise9.then((value) => {
   console.log("Fromise9:", "then1", value);
+  return new Fromise9((resolve, reject) => {
+    getPointFromise9(value, resolve);
+  });
 }).then((value) => {
   console.log("Fromise9:", "then2", value);
 }).catch(error => {
