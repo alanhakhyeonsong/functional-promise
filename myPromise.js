@@ -29,7 +29,7 @@ let Fromis9 = function Fromis9(callback) {
       } else {
         if (!_error) {
           if (_nextReject) {
-            _nextReject && _nextReject(value);
+            _nextReject(value);
           } else {
             console.error(value);
           }
