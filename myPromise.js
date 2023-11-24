@@ -21,7 +21,20 @@ let Fromis9 = function Fromis9(callback) {
   let _reject = function (value) {
     queueMicrotask(() => {
       let result = _error && _error(value);
-      _nextReject && _nextReject(result);
+
+      if (result instanceof Fromis9) {
+        result.then(value => {
+          _nextReject && _nextReject(value);
+        });
+      } else {
+        if (!_error) {
+          if (_nextReject) {
+            _nextReject && _nextReject(value);
+          } else {
+            console.error(value);
+          }
+        }
+      }
     })
   };
 
@@ -38,7 +51,10 @@ let Fromis9 = function Fromis9(callback) {
   this.catch = function(error) {
     _error = error;
 
-    return this;
+    return new Fromis9((resolve, reject) => {
+      _nextResolve = resolve;
+      _nextReject = reject;
+    });
   }
   
   try {
