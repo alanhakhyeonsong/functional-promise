@@ -6,34 +6,47 @@ let Fromis9 = function Fromis9(callback) {
 
   let _resolve = function (value) {
     queueMicrotask(() => {
-      let result = _success && _success(value);
-
-      if (result instanceof Fromis9) {
-        result.then(value => {
-          _nextResolve && _nextResolve(value);
-        });
-      } else {
-        _nextResolve && _nextResolve(result);
+      try {
+        let result = _success && _success(value);
+        
+        if (result instanceof Fromis9) {
+          result.then(
+            value => { _nextResolve && _nextResolve(value); },
+            error => { _nextReject && _nextReject(error); }
+          );
+        } else {
+          result = _success ? result : value;
+          _nextResolve && _nextResolve(result);
+        }
+      } catch (e) {
+        _nextReject && _nextReject(e);
       }
     });
   }
-
+  
   let _reject = function (value) {
     queueMicrotask(() => {
-      let result = _error && _error(value);
-
-      if (result instanceof Fromis9) {
-        result.then(value => {
-          _nextReject && _nextReject(value);
-        });
-      } else {
-        if (!_error) {
-          if (_nextReject) {
-            _nextReject(value);
+      try {
+        let result = _error && _error(value);
+  
+        if (result instanceof Fromis9) {
+          result.then(
+            value => { _nextResolve && _nextResolve(value); },
+            error => { _nextReject && _nextReject(error); }
+          );
+        } else {
+          if (!_error) {
+            if (_nextReject) {
+              _nextReject(value);
+            } else {
+              console.error('Uncaught (in Fromis9)', value);
+            }
           } else {
-            console.error(value);
+            _nextResolve(result);
           }
         }
+      } catch (e) {
+        _nextReject && _nextReject(e);
       }
     });
   };
@@ -84,12 +97,14 @@ promise().then(value => {
   // });
 }).catch(error => {
   console.log('Promise catch', error);
-  // throw new Error('catch error');
+  throw new Error('catch error');
+  return 'catch';
   // return new Promise((resolve, reject) => {
   //   reject('catchResolve');
   // });
 }).catch(error => {
   console.log('Promise catch2', error);
+  return 'catch2';
 }).then(value => {
   console.log('Promise then2', value);
 });
@@ -113,12 +128,14 @@ fromis9().then(value => {
   // });
 }).catch(error => {
   console.log('Fromis9 catch', error);
-  // throw new Error('catch error');
+  throw new Error('catch error');
+  return 'catch';
   // return new Fromis9((resolve, reject) => {
   //   reject('catchResolve');
   // });
 }).catch(error => {
   console.log('Fromis9 catch2', error);
+  return 'catch2'
 }).then(value => {
   console.log('Fromis9 then2', value);
 });
