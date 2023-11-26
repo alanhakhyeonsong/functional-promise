@@ -1,10 +1,13 @@
 let Fromis9 = function Fromis9(callback) {
+  let _state = 'pending';
   let _success;
   let _error;
   let _nextResolve;
   let _nextReject;
 
   let _resolve = function (value) {
+    _state = 'fulfilled';
+    
     queueMicrotask(() => {
       try {
         let result = _success && _success(value);
@@ -13,18 +16,20 @@ let Fromis9 = function Fromis9(callback) {
           result.then(
             value => { _nextResolve && _nextResolve(value); },
             error => { _nextReject && _nextReject(error); }
-          );
-        } else {
-          result = _success ? result : value;
-          _nextResolve && _nextResolve(result);
+            );
+          } else {
+            result = _success ? result : value;
+            _nextResolve && _nextResolve(result);
+          }
+        } catch (e) {
+          _nextReject && _nextReject(e);
         }
-      } catch (e) {
-        _nextReject && _nextReject(e);
-      }
-    });
-  }
-  
-  let _reject = function (value) {
+      });
+    }
+    
+    let _reject = function (value) {
+    _state = 'rejected';
+
     queueMicrotask(() => {
       try {
         let result = _error && _error(value);
@@ -35,14 +40,14 @@ let Fromis9 = function Fromis9(callback) {
             error => { _nextReject && _nextReject(error); }
           );
         } else {
-          if (!_error) {
+          if (_error) {
+            _nextResolve(result);
+          } else {
             if (_nextReject) {
               _nextReject(value);
             } else {
               console.error('Uncaught (in Fromis9)', value);
             }
-          } else {
-            _nextResolve(result);
           }
         }
       } catch (e) {
@@ -77,65 +82,67 @@ let Fromis9 = function Fromis9(callback) {
   }
 };
 
-/* -------------------------------------------- */
-
-// 예제 출력
-let promise = function() {
-  return new Promise((resolve, reject) => {
-    // throw new Error('throw Error');
-    // reject(new Error('reject Error'));
-    resolve(3);
-  });
+Fromis9.resolve = function (value) {
+  return new Fromis9(resolve => resolve(value));
 };
 
-promise().then(value => {
-  console.log('Promise then', value);
-  throw new Error('then error');
-  // return new Promise((resolve, reject) => {
-    // new Error('promise then new Error')
-    // reject(new Error('promise then new Error'));
-  // });
-}).catch(error => {
-  console.log('Promise catch', error);
-  throw new Error('catch error');
-  return 'catch';
-  // return new Promise((resolve, reject) => {
-  //   reject('catchResolve');
-  // });
-}).catch(error => {
-  console.log('Promise catch2', error);
-  return 'catch2';
-}).then(value => {
-  console.log('Promise then2', value);
-});
+Fromis9.reject = function (value) {
+  return new Fromis9((resolve, reject) => reject(value));
+};
 
+Fromis9.all = function (fromis9s) {
+  let result = [];
+  let count = 0;
 
-// 직접 만든 Fromis9 출력
-let fromis9 = function() {
   return new Fromis9((resolve, reject) => {
-    // throw new Error('throw Error');
-    // reject(new Error('reject Error'));
-    resolve(3);
+    fromis9s.forEach((fromis9, index) => {
+      fromis9.then(
+        value => {
+          result[index] = value;
+          (++count == fromis9s.length) && resolve(result);
+        },
+        reject
+      )
+    });
   });
 };
 
-fromis9().then(value => {
-  console.log('Fromis9 then', value);
-  throw new Error('then error');
-  // return new Fromis9((resolve, reject) => {
-    // new Error('fromis9 then new Error')
-    // reject(new Error('fromis9 then new Error'));
-  // });
-}).catch(error => {
-  console.log('Fromis9 catch', error);
-  throw new Error('catch error');
-  return 'catch';
-  // return new Fromis9((resolve, reject) => {
-  //   reject('catchResolve');
-  // });
-}).catch(error => {
-  console.log('Fromis9 catch2', error);
-  return 'catch2'
-}).then(value => {
-  console.log('Fromis9 then2', value);
-});
+Fromis9.race = function (fromis9s) {
+  let result = [];
+  let count = 0;
+
+  return new Fromis9((resolve, reject) => {
+    fromis9s.forEach((fromis9, index) => {
+      fromis9 = (fromis9 instanceof Fromis9) ? fromis9 : Fromis9.resolve(fromis9);
+
+      fromis9.then(
+        value => {
+          if (++count === 1) resolve(value);
+        },
+        error => {
+          if (++count === 1) reject(error);
+        },
+      );
+    });
+  });
+};
+
+Fromis9.allSettled = function (fromis9s) {
+  let result = [];
+  let count = 0;
+  
+  return new Fromis9((resolve, reject) => {
+    fromis9s.forEach((fromis9, index) => {
+      fromis9.then(
+        value => {
+          result[index] = {status: 'fulfilled', value: value};
+          (++count == fromis9s.length) && resolve(result);
+        },
+        error => {
+          result[index] = {status: 'rejected', value: error};
+          (++count == fromis9s.length) && resolve(error);
+        },
+      );
+    });
+  });
+};
